@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
+    "jose": "^6.2.2",
     "next": "16.2.2",
     "partykit": "^0.0.115",
     "partysocket": "^1.1.16",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

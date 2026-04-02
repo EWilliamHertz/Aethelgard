@@ -4,10 +4,12 @@ import { pgTable, serial, text, integer, jsonb } from 'drizzle-orm/pg-core';
 export const players = pgTable('players', {
   id: serial('id').primaryKey(),
   username: text('username').unique().notNull(),
-  bioMass: integer('bio_mass').default(0), // XP/Currency
+  passwordHash: text('password_hash').notNull(), // NEW: Stores the encrypted password
+  bioMass: integer('bio_mass').default(0), 
   myceliumLevel: integer('mycelium_level').default(1),
   currentZone: text('current_zone').default('Overgrown_Outpost'),
 });
+
 
 // The AI Guardians (Sprouts)
 export const sprouts = pgTable('sprouts', {

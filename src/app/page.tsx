@@ -1,75 +1,57 @@
 // src/app/page.tsx
 import Link from "next/link";
+import AuthForm from "@/components/AuthForm"; // We import the login system here!
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-emerald-400 font-mono selection:bg-emerald-900 selection:text-emerald-100">
+    <div className="min-h-screen bg-black text-emerald-400 font-mono">
       
-      {/* Navigation Bar */}
-      <nav className="flex justify-between items-center p-6 border-b border-emerald-900/50 bg-black/60 backdrop-blur-sm sticky top-0 z-50">
-        <div className="text-2xl font-bold text-emerald-300 tracking-widest drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">
-          AETHELGARD
+      {/* Retro Navigation Bar */}
+      <nav className="flex justify-between items-center p-4 border-b-4 border-emerald-900 bg-neutral-950">
+        <div className="text-2xl font-black text-emerald-500 tracking-widest uppercase">
+          [ AETHELGARD ]
         </div>
-        <div className="flex gap-4 items-center">
-          <button className="px-4 py-2 text-sm text-emerald-500 hover:text-emerald-300 transition-colors">
-            Login
-          </button>
-          <button className="px-5 py-2 text-sm bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-500 rounded text-emerald-50 shadow-[0_0_10px_rgba(16,185,129,0.2)] transition-all">
-            Register
-          </button>
-        </div>
+        <div className="text-sm text-emerald-700">v0.0.1_ALPHA</div>
       </nav>
 
-      {/* Hero Section */}
-      <header className="max-w-5xl mx-auto px-6 pt-24 pb-16 text-center relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-neutral-950 to-neutral-950 -z-10"></div>
-        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-b from-emerald-200 to-emerald-600">
-          NATURE WON.
-        </h1>
-        <p className="text-lg md:text-xl text-emerald-600/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-          The Great Bloom swallowed the old world. Become a <span className="text-emerald-400">Seed-Singer</span>, pacify ancient AI Guardians, and rebuild society in a lush, overgrown Solarpunk future.
-        </p>
-        <Link 
-          href="/play" 
-          className="inline-block px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-black font-bold text-lg rounded shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all hover:-translate-y-1"
-        >
-          Enter The Overgrowth
-        </Link>
+      {/* Hero Section & Auth Split */}
+      <header className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h1 className="text-5xl md:text-6xl font-black mb-6 text-emerald-400 uppercase tracking-tighter drop-shadow-[4px_4px_0_rgba(2,44,34,1)]">
+            Nature Won.
+          </h1>
+          <p className="text-lg text-emerald-600 mb-8 leading-relaxed bg-neutral-900 p-4 border-l-4 border-emerald-700">
+            The Great Bloom swallowed the old world. Become a Seed-Singer, pacify ancient AI Guardians, and rebuild society in a lush, turn-based Solarpunk future.
+          </p>
+          
+          <div className="flex gap-4">
+            <Link 
+              href="#lore" 
+              className="px-6 py-3 bg-neutral-950 border-2 border-emerald-800 text-emerald-500 font-bold uppercase hover:bg-emerald-950 transition-colors"
+            >
+              Read Data-Logs
+            </Link>
+          </div>
+        </div>
+
+        {/* The Auth Terminal */}
+        <div className="bg-neutral-900 border-4 border-emerald-800 p-6 shadow-[8px_8px_0_rgba(2,44,34,1)]">
+           <AuthForm mode="register" />
+           <div className="mt-4 text-center text-xs text-emerald-700">
+             Already synced? <button className="text-emerald-500 underline hover:text-emerald-300">Login Sequence</button>
+           </div>
+        </div>
       </header>
 
       {/* Pixel Art Animation Placeholder */}
-      <section className="max-w-5xl mx-auto p-6 mb-24">
-        <div className="aspect-[21/9] bg-black border-2 border-emerald-900/50 rounded-xl flex flex-col items-center justify-center relative overflow-hidden group shadow-2xl">
-           <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#022c22_1px,transparent_1px),linear-gradient(to_bottom,#022c22_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
-           <p className="text-emerald-500 font-bold z-10 text-xl tracking-widest animate-pulse mb-2">
-             [ PIXEL ART HERO ANIMATION ]
-           </p>
-           <p className="text-emerald-700 z-10 text-sm">
-             (Add your stunning 2D GIF or canvas animation here later)
-           </p>
+      <section className="max-w-6xl mx-auto px-6 mb-16">
+        <div className="aspect-[21/9] bg-neutral-950 border-4 border-emerald-900 flex flex-col items-center justify-center relative shadow-[8px_8px_0_rgba(2,44,34,1)]">
+          <img 
+  src="/images/seed-singers-hero.png" 
+  alt="Lush, overgrown cyberpunk city with Seed-Singer and mechanical deer"
+  className="max-w-full h-auto" // Optional styling to make it responsive
+/>
         </div>
-      </section>
-
-      {/* Lore & Mechanics Grid */}
-      <section className="max-w-5xl mx-auto px-6 grid md:grid-cols-3 gap-8 pb-24">
-         <div className="bg-neutral-900/50 border border-emerald-900/30 p-6 rounded-lg hover:border-emerald-700/50 transition-colors">
-            <h3 className="text-xl font-bold text-emerald-400 mb-3">Sync with AI</h3>
-            <p className="text-emerald-600/80 text-sm leading-relaxed">
-              Don't destroy the ancient machines. Use Data-Seeds to reprogram "Sprouts" and borrow their elemental power to survive the wild.
-            </p>
-         </div>
-         <div className="bg-neutral-900/50 border border-emerald-900/30 p-6 rounded-lg hover:border-emerald-700/50 transition-colors">
-            <h3 className="text-xl font-bold text-emerald-400 mb-3">Mycelium Network</h3>
-            <p className="text-emerald-600/80 text-sm leading-relaxed">
-              Grow your character's abilities through a branching, organic skill tree. Invest Bio-Mass to unlock new paths and professions.
-            </p>
-         </div>
-         <div className="bg-neutral-900/50 border border-emerald-900/30 p-6 rounded-lg hover:border-emerald-700/50 transition-colors">
-            <h3 className="text-xl font-bold text-emerald-400 mb-3">Circuit League PvP</h3>
-            <p className="text-emerald-600/80 text-sm leading-relaxed">
-              Test your Sprouts against other Seed-Singers in tactical, turn-based battles influenced by dynamic weather and terrain.
-            </p>
-         </div>
       </section>
       
     </div>
