@@ -49,11 +49,11 @@ export default function GameClient() {
       {/* Game Header */}
       <div className="max-w-7xl mx-auto flex justify-between items-center mb-8 border-b-4 border-emerald-900 pb-4 bg-neutral-950 p-4 shadow-[4px_4px_0_rgba(2,44,34,1)]">
         <h1 className="text-2xl font-black text-emerald-300 uppercase tracking-widest">[ SeedSingers ]</h1>
-        <div className="flex gap-6 text-sm text-emerald-600">
+      <div className="flex gap-6 text-sm text-emerald-600">
           <span>ZONE: <span className="text-emerald-400">{roomName}</span></span>
           <span>STATUS: <span className="text-emerald-400 animate-pulse">ONLINE</span></span>
         </div>
-      }
+      </div> {/* <--- CORRECTED CLOSING TAG */}
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-[1fr,auto] gap-8">
         
