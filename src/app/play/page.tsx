@@ -62,24 +62,7 @@ const handleSync = async () => {
 
   const addLog = (msg: string) => setLogs((prev) => [...prev, msg].slice(-5)); 
 
-  // --- SYNC / SAVE POINT ---
-  const handleSync = async () => {
-    addLog("Initiating Sync with Great Anchor...");
-    const result = await saveProgress({
-      bioMass,
-      myceliumLevel,
-      inventory,
-      playerHp,
-      maxHp
-    });
-    
-    if (result.success) {
-      addLog("SUCCESS: Progress anchored to NeonDB.");
-    } else {
-      addLog("ERROR: Sync connection timed out.");
-    }
-  };
-
+  
   const handlePlayerMoveOnGrid = (newPos: { x: number; y: number }) => {
     socket.send(JSON.stringify({ type: 'MOVE', position: newPos, zone: roomName }));
   };
