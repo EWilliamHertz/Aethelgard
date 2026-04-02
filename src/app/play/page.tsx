@@ -1,7 +1,7 @@
 // src/app/play/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import usePartySocket from "partysocket/react";
 import OverworldCanvas from "@/components/OverworldCanvas";
 import BattleArena from "@/components/BattleArena";

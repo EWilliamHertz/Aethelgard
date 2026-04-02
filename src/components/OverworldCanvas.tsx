@@ -52,11 +52,10 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
   const [direction, setDirection] = useState<'DOWN' | 'UP' | 'LEFT' | 'RIGHT'>('DOWN');
   const [frame, setFrame] = useState(0); 
 
-  // --- 1. LOAD SPRITE SHEET ---
+// --- 1. LOAD SPRITE SHEET ---
   useEffect(() => {
     const img = new Image();
-    // Path updated to your new file name
-    img.src = '/images/player-sprite.png'; 
+    img.src = '/images/player-sprite.png'; // Use the new transparent sprite sheet
     img.onload = () => { spriteRef.current = img; };
   }, []);
 
@@ -70,7 +69,10 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
 
     let animationFrameId: number;
 
-    const draw = () => {
+ const draw = () => {
+      // Disable smoothing to keep pixel art sharp
+      ctx.imageSmoothingEnabled = false;
+      
       // Clear canvas
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
