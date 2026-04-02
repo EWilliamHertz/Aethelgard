@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'Aethelgard | Solarpunk MMORPG',
+  title: 'SeedSingers | Solarpunk MMORPG',
   description: 'A turn-based pixel art RPG.',
 }
 

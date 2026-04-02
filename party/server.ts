@@ -1,7 +1,7 @@
 // party/server.ts
 import type * as Party from "partykit/server";
 
-export default class AethelgardServer implements Party.Server {
+export default class SeedSingersServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {

@@ -69,7 +69,7 @@ async function createSession(userId: number, username: string) {
 
   // We await the cookies() promise before setting it
   const cookieStore = await cookies();
-  cookieStore.set('aethelgard_session', token, {
+  cookieStore.set('SeedSingers_session', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
