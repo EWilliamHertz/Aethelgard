@@ -61,7 +61,7 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
   // --- 2. DRAW LOOP ---
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !spriteRef.current) return;
+    if (!canvas) return; // We removed the spriteRef.current check here!
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -85,41 +85,40 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
         }
       }
 
-      // Draw Player Sprite
-      const spriteSize = 32; 
-      const row = DIR_MAP[direction];
-      const col = frame;
-      const drawX = playerPos.x * TILE_SIZE;
-      const drawY = playerPos.y * TILE_SIZE;
+      // ONLY Draw Player Sprite if the image has finished downloading
+      if (spriteRef.current) {
+        const spriteSize = 32; 
+        const row = DIR_MAP[direction];
+        const col = frame;
+        const drawX = playerPos.x * TILE_SIZE;
+        const drawY = playerPos.y * TILE_SIZE;
 
-      // If facing left, we need to flip the canvas horizontally to draw the sprite backwards
-      if (direction === 'LEFT') {
-        ctx.save();
-        ctx.scale(-1, 1);
-        // Because we flipped the canvas, the X coordinate becomes negative
-        ctx.drawImage(
-          spriteRef.current!,
-          col * spriteSize, row * spriteSize, spriteSize, spriteSize,
-          -drawX - TILE_SIZE, drawY, TILE_SIZE, TILE_SIZE
-        );
-        ctx.restore();
-      } else {
-        // Normal drawing for Down, Up, and Right
-        ctx.drawImage(
-          spriteRef.current!,
-          col * spriteSize, row * spriteSize, spriteSize, spriteSize,
-          drawX, drawY, TILE_SIZE, TILE_SIZE
-        );
+        if (direction === 'LEFT') {
+          ctx.save();
+          ctx.scale(-1, 1);
+          ctx.drawImage(
+            spriteRef.current,
+            col * spriteSize, row * spriteSize, spriteSize, spriteSize,
+            -drawX - TILE_SIZE, drawY, TILE_SIZE, TILE_SIZE
+          );
+          ctx.restore();
+        } else {
+          ctx.drawImage(
+            spriteRef.current,
+            col * spriteSize, row * spriteSize, spriteSize, spriteSize,
+            drawX, drawY, TILE_SIZE, TILE_SIZE
+          );
+        }
       }
 
       animationFrameId = window.requestAnimationFrame(draw);
     };
 
-    draw();
+    draw(); // Start the loop immediately!
 
     return () => window.cancelAnimationFrame(animationFrameId);
   }, [playerPos, direction, frame]);
-
+  
   // --- 3. MOVEMENT & COLLISION ---
   const attemptMove = useCallback((dx: number, dy: number, dir: 'DOWN' | 'UP' | 'LEFT' | 'RIGHT') => {
     setDirection(dir);
