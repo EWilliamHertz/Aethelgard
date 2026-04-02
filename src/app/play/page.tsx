@@ -61,9 +61,15 @@ export default function GameClient() {
         <div className="flex justify-center items-start w-full">
           {gameState === 'EXPLORING' ? (
             <OverworldCanvas onMove={handlePlayerMoveOnGrid} onEncounter={handleEncounter} />
-          ) : (
-            <BattleArena onFlee={handleFlee} />
-          )}
+  ) : (
+    <BattleArena 
+      onFlee={handleFlee} 
+      onVictory={() => {
+        addLog("Sync Successful! Gained 25 Bio-Mass.");
+        setGameState('EXPLORING');
+      }} 
+    />
+  )}
         </div>
 
         {/* --- SIDE PANEL --- */}

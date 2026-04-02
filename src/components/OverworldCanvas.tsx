@@ -10,7 +10,7 @@ const ROWS = 15;
 const WIDTH = COLS * TILE_SIZE;
 const HEIGHT = ROWS * TILE_SIZE;
 
-// Map directions to row indexes in your seed-singer-sprites.png sheet
+// Map directions to row indexes in your seed-singers-sprites.png sheet
 const DIR_MAP = { DOWN: 0, UP: 1, RIGHT: 2, LEFT: 2 }; 
 
 // --- MAP DATA (0 = Walkable Grass, 1 = Obstacle Tree/Ruin) ---
@@ -54,7 +54,7 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
   // --- 1. LOAD SPRITE SHEET ---
   useEffect(() => {
     const img = new Image();
-    img.src = '/images/seed-singer-sprites.png'; // Ensure this file is saved!
+    img.src = '/images/seed-singers-sprites.png'; // Ensure this file is saved!
     img.onload = () => { spriteRef.current = img; };
   }, []);
 
@@ -118,7 +118,7 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
 
     return () => window.cancelAnimationFrame(animationFrameId);
   }, [playerPos, direction, frame]);
-  
+
   // --- 3. MOVEMENT & COLLISION ---
   const attemptMove = useCallback((dx: number, dy: number, dir: 'DOWN' | 'UP' | 'LEFT' | 'RIGHT') => {
     setDirection(dir);
