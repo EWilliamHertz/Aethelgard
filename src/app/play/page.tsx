@@ -1,66 +1,87 @@
-// src/app/page.tsx
+// src/app/play/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import usePartySocket from "partysocket/react";
+import OverworldCanvas from "@/components/OverworldCanvas"; // Import our new engine!
 
 export default function GameClient() {
-  const [logs, setLogs] = useState<string[]>(["Initializing Aethelgard Leaf-UI..."]);
+  const [logs, setLogs] = useState<string[]>(["Leaf-UI Active. Welcome, Seed-Singer."]);
   const roomName = "Overgrown_Outpost"; // The starting zone
 
-  // Connect to the real-time PartyKit server
+  // Connect to the real-time PartyKit server (established in previous turn)
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "localhost:1999",
     room: roomName,
     onMessage: (evt) => {
       const data = JSON.parse(evt.data);
       if (data.type === 'PLAYER_JOINED') {
-        addLog(`A new Seed-Singer arrived. (ID: ${data.id.slice(0,4)})`);
+        addLog(`Network Sync: Another Seed-Singer arrived. (ID: ${data.id.slice(0,4)})`);
       }
       if (data.type === 'PLAYER_LEFT') {
-        addLog(`A Seed-Singer departed. (ID: ${data.id.slice(0,4)})`);
+        addLog(`Network Sync: A Seed-Singer lost connection. (ID: ${data.id.slice(0,4)})`);
       }
+      // Future: Handle 'PLAYER_MOVED' messages from others here to draw their sprites
     },
   });
 
   const addLog = (msg: string) => {
-    setLogs((prev) => [...prev, msg].slice(-5)); // Keep last 5 logs
+    // Keep logs relevant to MMO network activity for now
+    setLogs((prev) => [...prev, msg].slice(-3)); 
   };
 
-  const handleSyncAttempt = () => {
-    addLog("Attempting to Sync with wild AI Guardian...");
-    // Here we will eventually trigger the server action to write to NeonDB
+  // Callback function passed to the Canvas
+  const handlePlayerMoveOnGrid = (newPos: { x: number; y: number }) => {
+    // 1. Send the movement data via PartyKit websocket to sync with other players
+    socket.send(JSON.stringify({
+      type: 'MOVE',
+      position: newPos, // Grid coordinates
+      zone: roomName
+    }));
+    
+    // Optional: Log movement locally for debugging
+    // addLog(`Local Move: Grid(${newPos.x}, ${newPos.y})`);
   };
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-emerald-400 p-8 font-mono">
-      <div className="max-w-4xl mx-auto border-2 border-emerald-800 rounded-lg p-6 shadow-[0_0_15px_rgba(16,185,129,0.2)] bg-neutral-900">
-        <h1 className="text-3xl font-bold mb-2 text-emerald-300 tracking-wider">AETHELGARD: The Overgrowth</h1>
-        <p className="text-emerald-600 mb-8 border-b border-emerald-800 pb-4">Zone: {roomName}</p>
-        
-        <div className="grid grid-cols-3 gap-6">
-          {/* Game Viewport Placeholder */}
-          <div className="col-span-2 aspect-video bg-black border border-emerald-800 rounded flex items-center justify-center relative overflow-hidden">
-             <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500 via-transparent to-transparent"></div>
-             <p className="text-emerald-700/50 text-lg z-10">[ Canvas / PixiJS Rendering Engine ]</p>
-          </div>
+    <main className="min-h-screen bg-black text-emerald-400 p-6 font-mono selection:bg-emerald-900">
+      
+      {/* Game Header */}
+      <div className="max-w-7xl mx-auto flex justify-between items-center mb-8 border-b-4 border-emerald-900 pb-4 bg-neutral-950 p-4 shadow-[4px_4px_0_rgba(2,44,34,1)]">
+        <h1 className="text-2xl font-black text-emerald-300 uppercase tracking-widest">[ SeedSingers ]</h1>
+        <div className="flex gap-6 text-sm text-emerald-600">
+          <span>ZONE: <span className="text-emerald-400">{roomName}</span></span>
+          <span>STATUS: <span className="text-emerald-400 animate-pulse">ONLINE</span></span>
+        </div>
+      }
 
-          {/* Side Panel: Logs & Actions */}
-          <div className="flex flex-col gap-4">
-            <div className="flex-1 border border-emerald-800 bg-black/50 p-4 rounded text-sm overflow-hidden flex flex-col justify-end">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-[1fr,auto] gap-8">
+        
+        {/* --- MAIN GAME VIEWPORT (Canvas Engine) --- */}
+        <div className="flex justify-center items-start">
+          <OverworldCanvas onMove={handlePlayerMoveOnGrid} />
+        </div>
+
+        {/* --- SIDE PANEL (Network Logs & Future Stats) --- */}
+        <div className="xl:w-80 flex flex-col gap-6">
+          <div className="border-4 border-emerald-900 bg-neutral-950 p-5 shadow-[8px_8px_0_rgba(2,44,34,1)]">
+            <h2 className="text-lg font-bold text-emerald-300 mb-3 border-b-2 border-emerald-900 pb-1">Network Logs</h2>
+            <div className="text-xs text-emerald-500 space-y-2 h-24 overflow-y-auto">
               {logs.map((log, i) => (
-                <div key={i} className="mb-1">{">"} {log}</div>
+                <div key={i} className="leading-relaxed">{">"} {log}</div>
               ))}
             </div>
-            
-            <button 
-              onClick={handleSyncAttempt}
-              className="w-full py-3 bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-500 rounded transition-colors"
-            >
-              Throw Data-Seed
-            </button>
+          </div>
+          
+          <div className="border-4 border-emerald-900 bg-neutral-950 p-5 shadow-[8px_8px_0_rgba(2,44,34,1)]">
+            <h2 className="text-lg font-bold text-emerald-300 mb-3 border-b-2 border-emerald-900 pb-1">Controls</h2>
+            <div className="grid grid-cols-2 gap-2 text-sm text-emerald-600">
+              <div className="bg-black p-2 border border-emerald-900">MOVE: <span className="text-emerald-400">WASD / ARROWS</span></div>
+              <div className="bg-black p-2 border border-emerald-900">ACTION: <span className="text-emerald-400">SPACE (Future)</span></div>
+            </div>
           </div>
         </div>
+
       </div>
     </main>
   );
