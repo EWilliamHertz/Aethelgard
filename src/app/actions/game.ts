@@ -1,4 +1,3 @@
-// src/app/actions/game.ts
 'use server';
 
 import { db } from '@/db';
@@ -10,27 +9,29 @@ import { jwtVerify } from 'jose';
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
 
 export async function saveProgress(data: any) {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('aethelgard_session')?.value;
-  if (!session) return { error: 'Not authenticated' };
-
   try {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('aethelgard_session')?.value;
+    if (!session) return { success: false, error: 'No Session' };
+
     const { payload } = await jwtVerify(session, SECRET);
     const userId = payload.userId as number;
 
-    // Update the player's stats in the database
+    // Use a fast update. Ensure your Neon DB URL has ?sslmode=require
     await db.update(players)
       .set({
         bioMass: data.bioMass,
         myceliumLevel: data.myceliumLevel,
         inventory: data.inventory,
-        // currentHp and maxHp will be saved here once added to schema
+        // Ensure these columns exist in your schema!
+        currentHp: data.playerHp,
+        maxHp: data.maxHp,
       })
       .where(eq(players.id, userId));
 
     return { success: true };
   } catch (e) {
-    console.error(e);
-    return { error: 'Failed to save' };
+    console.error("Save Error:", e);
+    return { success: false, error: 'Database Timeout' };
   }
 }

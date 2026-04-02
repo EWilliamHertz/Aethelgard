@@ -10,7 +10,33 @@ import { saveProgress } from "@/app/actions/game"; // NEW: Import save action
 export default function GameClient() {
   const [logs, setLogs] = useState<string[]>(["Leaf-UI Active. Welcome, Seed-Singer."]);
   const [gameState, setGameState] = useState<'EXPLORING' | 'BATTLING'>('EXPLORING'); 
+  useEffect(() => {
+  // Auto-save every 30 seconds
+  const autoSaveInterval = setInterval(() => {
+    if (gameState === 'EXPLORING') { // Only save while not in battle to avoid interruptions
+      handleSync();
+    }
+  }, 30000);
+
+  return () => clearInterval(autoSaveInterval);
+}, [playerHp, bioMass, inventory, gameState]); // Re-run if these change
+
+const handleSync = async () => {
+  // Don't log "Syncing..." every 30s to keep the log clean
+  const result = await saveProgress({
+    bioMass,
+    myceliumLevel,
+    inventory,
+    playerHp,
+    maxHp
+  });
   
+  if (result.success) {
+    console.log("Auto-save successful");
+  } else {
+    addLog("Sync Error: Data not anchored.");
+  }
+};
   // --- CORE STATS ---
   const [playerHp, setPlayerHp] = useState(100);
   const [maxHp, setMaxHp] = useState(100);
