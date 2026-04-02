@@ -7,17 +7,16 @@ export const players = pgTable('players', {
   passwordHash: text('password_hash').notNull(),
   bioMass: integer('bio_mass').default(0), 
   myceliumLevel: integer('mycelium_level').default(1),
+  currentHp: integer('current_hp').default(100), // Added for persistence
+  maxHp: integer('max_hp').default(100),         // Added for persistence
   currentZone: text('current_zone').default('Overgrown_Outpost'),
-  // NEW: A flexible JSON column to hold all your loot!
   inventory: jsonb('inventory').$type<{ itemName: string; quantity: number }[]>().default([]),
 });
 
-// The AI Guardians (Sprouts)
 export const sprouts = pgTable('sprouts', {
   id: serial('id').primaryKey(),
   ownerId: integer('owner_id').references(() => players.id),
-  species: text('species').notNull(), // e.g., 'Solar_Stag', 'Moss_Drone'
-  type: text('type').notNull(), // 'Solar', 'Fungal', 'Root', 'Circuit'
-  stats: jsonb('stats').$type<{ hp: number; speed: number; energy: number }>().notNull(),
-  dnaCode: text('dna_code'), // Unique visual/stat variation
+  species: text('species').notNull(),
+  level: integer('level').default(1),
+  hp: integer('hp').default(100),
 });

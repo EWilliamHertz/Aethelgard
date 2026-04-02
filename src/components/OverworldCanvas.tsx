@@ -10,7 +10,8 @@ const ROWS = 15;
 const WIDTH = COLS * TILE_SIZE;
 const HEIGHT = ROWS * TILE_SIZE;
 
-// Map directions to row indexes in your seed-singers-sprites.png sheet
+// Map directions to row indexes in your player-sprite.png sheet
+// Row 0: Down, Row 1: Up, Row 2: Side (Right)
 const DIR_MAP = { DOWN: 0, UP: 1, RIGHT: 2, LEFT: 2 }; 
 
 // --- MAP DATA (0 = Walkable Grass, 1 = Obstacle Tree/Ruin) ---
@@ -54,14 +55,15 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
   // --- 1. LOAD SPRITE SHEET ---
   useEffect(() => {
     const img = new Image();
-    img.src = '/images/seed-singers-sprites.png'; // Ensure this file is saved!
+    // Path updated to your new file name
+    img.src = '/images/player-sprite.png'; 
     img.onload = () => { spriteRef.current = img; };
   }, []);
 
   // --- 2. DRAW LOOP ---
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return; // We removed the spriteRef.current check here!
+    if (!canvas) return; 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -87,26 +89,28 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
 
       // ONLY Draw Player Sprite if the image has finished downloading
       if (spriteRef.current) {
-        const spriteSize = 32; 
+        const spriteSize = 32; // This ensures we cut into 32x32 pieces
         const row = DIR_MAP[direction];
         const col = frame;
         const drawX = playerPos.x * TILE_SIZE;
         const drawY = playerPos.y * TILE_SIZE;
 
         if (direction === 'LEFT') {
+          // Flip the canvas for leftward movement using the rightward sprite row
           ctx.save();
+          ctx.translate(drawX + TILE_SIZE / 2, drawY + TILE_SIZE / 2);
           ctx.scale(-1, 1);
           ctx.drawImage(
             spriteRef.current,
-            col * spriteSize, row * spriteSize, spriteSize, spriteSize,
-            -drawX - TILE_SIZE, drawY, TILE_SIZE, TILE_SIZE
+            col * spriteSize, row * spriteSize, spriteSize, spriteSize, // Source cut
+            -TILE_SIZE / 2, -TILE_SIZE / 2, TILE_SIZE, TILE_SIZE // Draw
           );
           ctx.restore();
         } else {
           ctx.drawImage(
             spriteRef.current,
-            col * spriteSize, row * spriteSize, spriteSize, spriteSize,
-            drawX, drawY, TILE_SIZE, TILE_SIZE
+            col * spriteSize, row * spriteSize, spriteSize, spriteSize, // Source cut
+            drawX, drawY, TILE_SIZE, TILE_SIZE // Draw
           );
         }
       }
@@ -114,7 +118,7 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
       animationFrameId = window.requestAnimationFrame(draw);
     };
 
-    draw(); // Start the loop immediately!
+    draw(); 
 
     return () => window.cancelAnimationFrame(animationFrameId);
   }, [playerPos, direction, frame]);
@@ -122,7 +126,7 @@ export default function OverworldCanvas({ onMove, onEncounter }: Props) {
   // --- 3. MOVEMENT & COLLISION ---
   const attemptMove = useCallback((dx: number, dy: number, dir: 'DOWN' | 'UP' | 'LEFT' | 'RIGHT') => {
     setDirection(dir);
-    // Cycle through 4 animation frames when walking
+    // Cycle through animation frames (assuming 4 frames per row)
     setFrame((f) => (f + 1) % 4); 
 
     setPlayerPos((prev) => {

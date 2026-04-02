@@ -5,17 +5,18 @@ import { useState } from "react";
 import usePartySocket from "partysocket/react";
 import OverworldCanvas from "@/components/OverworldCanvas";
 import BattleArena from "@/components/BattleArena";
+import { saveProgress } from "@/app/actions/game"; // NEW: Import save action
 
 export default function GameClient() {
   const [logs, setLogs] = useState<string[]>(["Leaf-UI Active. Welcome, Seed-Singer."]);
   const [gameState, setGameState] = useState<'EXPLORING' | 'BATTLING'>('EXPLORING'); 
   
-  // --- NEW CORE STATS SYSTEM ---
+  // --- CORE STATS ---
   const [playerHp, setPlayerHp] = useState(100);
   const [maxHp, setMaxHp] = useState(100);
-  const [bioMass, setBioMass] = useState(0); // XP
+  const [bioMass, setBioMass] = useState(0); 
   const [myceliumLevel, setMyceliumLevel] = useState(1);
-  const xpNeeded = myceliumLevel * 100; // E.g., Lv 1 needs 100 XP, Lv 2 needs 200 XP
+  const xpNeeded = myceliumLevel * 100;
   
   const [inventory, setInventory] = useState<{ itemName: string; quantity: number }[]>([
     { itemName: "Data-Seed", quantity: 5 }
@@ -35,6 +36,24 @@ export default function GameClient() {
 
   const addLog = (msg: string) => setLogs((prev) => [...prev, msg].slice(-5)); 
 
+  // --- SYNC / SAVE POINT ---
+  const handleSync = async () => {
+    addLog("Initiating Sync with Great Anchor...");
+    const result = await saveProgress({
+      bioMass,
+      myceliumLevel,
+      inventory,
+      playerHp,
+      maxHp
+    });
+    
+    if (result.success) {
+      addLog("SUCCESS: Progress anchored to NeonDB.");
+    } else {
+      addLog("ERROR: Sync connection timed out.");
+    }
+  };
+
   const handlePlayerMoveOnGrid = (newPos: { x: number; y: number }) => {
     socket.send(JSON.stringify({ type: 'MOVE', position: newPos, zone: roomName }));
   };
@@ -48,11 +67,10 @@ export default function GameClient() {
   const gainBioMass = (amount: number) => {
     const newTotal = bioMass + amount;
     if (newTotal >= xpNeeded) {
-      // LEVEL UP!
       setMyceliumLevel(prev => prev + 1);
-      setBioMass(newTotal - xpNeeded); // Carry over extra XP
-      setMaxHp(prev => prev + 25);     // Increase Max HP
-      setPlayerHp(prev => prev + 25);  // Heal slightly on level up
+      setBioMass(newTotal - xpNeeded);
+      setMaxHp(prev => prev + 25);
+      setPlayerHp(prev => prev + 25); 
       addLog(`*** LEVEL UP! Reached Mycelium Level ${myceliumLevel + 1}! ***`);
     } else {
       setBioMass(newTotal);
@@ -79,11 +97,10 @@ export default function GameClient() {
   // --- DEATH PENALTY ---
   const handleDeath = () => {
     const loss = 50;
-    setBioMass(prev => Math.max(0, prev - loss)); // Lose 50 XP, but don't go below 0
-    setPlayerHp(maxHp); // Revive at full health
+    setBioMass(prev => Math.max(0, prev - loss)); 
+    setPlayerHp(maxHp); 
     addLog(`CRITICAL FAILURE. Lost ${loss} Bio-Mass. Revived at Save Point.`);
     setGameState('EXPLORING');
-    // NOTE: In the future, we will teleport your Canvas sprite back to coordinate (2,7) here!
   };
 
   // --- RECYCLE SPROUT TO HEAL ---
@@ -95,7 +112,6 @@ export default function GameClient() {
     const sproutToSacrifice = roster[indexToRemove];
     setRoster(prev => prev.filter((_, idx) => idx !== indexToRemove));
     
-    // Heal for 50 HP, but don't exceed Max HP
     const healAmount = 50;
     setPlayerHp(prev => Math.min(maxHp, prev + healAmount));
     addLog(`Recycled ${sproutToSacrifice.name}. Recovered ${healAmount} HP.`);
@@ -112,10 +128,11 @@ export default function GameClient() {
       <div className="max-w-7xl mx-auto flex justify-between items-center mb-8 border-b-4 border-emerald-900 pb-4 bg-neutral-950 p-4 shadow-[4px_4px_0_rgba(2,44,34,1)]">
         <div>
            <h1 className="text-2xl font-black text-emerald-300 uppercase tracking-widest">[ SeedSingers ]</h1>
-           {/* PLAYER STATS HEADER */}
            <div className="mt-2 text-xs flex gap-4 text-emerald-500">
               <span className="bg-emerald-950 px-2 py-1 border border-emerald-900">Lv: {myceliumLevel}</span>
-              <span className="bg-emerald-950 px-2 py-1 border border-emerald-900">HP: <span className={playerHp < 30 ? 'text-red-400' : 'text-emerald-300'}>{playerHp}/{maxHp}</span></span>
+              <span className="bg-emerald-950 px-2 py-1 border border-emerald-900 font-bold">
+                HP: <span className={playerHp < 30 ? 'text-red-400 animate-pulse' : 'text-emerald-300'}>{playerHp}/{maxHp}</span>
+              </span>
               <span className="bg-emerald-950 px-2 py-1 border border-emerald-900">XP: {bioMass}/{xpNeeded}</span>
            </div>
         </div>
@@ -164,7 +181,6 @@ export default function GameClient() {
                          <span>{sprout.name}</span>
                          <span className="text-[10px] text-cyan-600 font-bold">Lv.{sprout.level}</span>
                        </div>
-                       {/* RECYCLE BUTTON */}
                        <button 
                          onClick={() => recycleSprout(idx)}
                          className="bg-emerald-900/50 hover:bg-emerald-700 text-emerald-300 text-[10px] px-2 py-1 border border-emerald-700 transition-colors"
@@ -200,10 +216,12 @@ export default function GameClient() {
           
           {/* System Logs */}
           <div className="border-4 border-emerald-900 bg-neutral-950 p-5 shadow-[8px_8px_0_rgba(2,44,34,1)]">
-            <h2 className="text-lg font-bold text-emerald-300 mb-3 border-b-2 border-emerald-900 pb-1 flex justify-between">
+            <h2 className="text-lg font-bold text-emerald-300 mb-3 border-b-2 border-emerald-900 pb-1 flex justify-between items-center">
               <span>System Logs</span>
-              {/* FUTURE SAVE POINT BUTTON */}
-              <button className="text-[10px] bg-neutral-900 border border-emerald-800 px-2 py-1 hover:bg-emerald-900 text-emerald-500 transition-colors">
+              <button 
+                onClick={handleSync}
+                className="text-[10px] bg-neutral-900 border border-emerald-800 px-2 py-1 hover:bg-emerald-950 text-emerald-500 transition-all active:scale-95"
+              >
                 [ Sync to DB ]
               </button>
             </h2>
