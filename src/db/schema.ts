@@ -1,9 +1,6 @@
 // src/db/schema.ts
 import { pgTable, serial, text, integer, jsonb } from 'drizzle-orm/pg-core';
 
-// src/db/schema.ts
-import { pgTable, serial, text, integer, jsonb } from 'drizzle-orm/pg-core';
-
 export const players = pgTable('players', {
   id: serial('id').primaryKey(),
   username: text('username').unique().notNull(),
@@ -14,7 +11,6 @@ export const players = pgTable('players', {
   // NEW: A flexible JSON column to hold all your loot!
   inventory: jsonb('inventory').$type<{ itemName: string; quantity: number }[]>().default([]),
 });
-
 
 // The AI Guardians (Sprouts)
 export const sprouts = pgTable('sprouts', {
