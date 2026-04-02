@@ -75,7 +75,7 @@ export default function LandingPage() {
            />
         </div>
       </section>
-      
+      // Triggering Vercel Redeploy
     </div>
   );
 }
